@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>System Alert</title>
+    <style>
+        body {
+            background: black;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        #dialog {
+            background: #ff4444;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 0 20px red;
+        }
+        button {
+            font-size: 20px;
+            margin: 10px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: white;
+            color: black;
+            font-weight: bold;
+        }
+        #explosion {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #explosion img {
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        #countdown {
+            font-size: 2em;
+            color: yellow;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="dialog">
+        <h1>⚠️ سيتم تدمير بياناتك إن لم تجب على السؤال!</h1>
+        <p>هل أنت مستعد لإنقاذ النظام؟</p>
+        <button onclick="disarm()">نعم</button>
+        <button onclick="startFullScreen()">لا</button>
+    </div>
+    <div id="explosion">
+        <img src="https://media.giphy.com/media/oe33xf3B50fsc/giphy.gif" alt="Explosion">
+        <h1 style="color:red; font-size: 3em;">💥 BOOM!</h1>
+        <p style="color:white;">😂 لا تقلق، مجرد مزحة.</p>
+    </div>
+    <audio id="boomSound" src="https://www.soundjay.com/mechanical/sounds/explosion-01.mp3" preload="auto"></audio>
+
+    <script>
+        let canExit = false;
+
+        function disarm() {
+            canExit = true;
+            window.onbeforeunload = null;
+            document.body.innerHTML = "<h1 style='color:green; text-align:center'>✅ تم إلغاء التدمير</h1>";
+        }
+
+        function startFullScreen() {
+            const docElm = document.documentElement;
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            } else if (docElm.mozRequestFullScreen) {
+                docElm.mozRequestFullScreen();
+            } else if (docElm.webkitRequestFullscreen) {
+                docElm.webkitRequestFullscreen();
+            } else if (docElm.msRequestFullscreen) {
+                docElm.msRequestFullscreen();
+            }
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let seconds = 10;
+            document.getElementById('dialog').style.display = 'none';
+            const explosion = document.getElementById('explosion');
+            explosion.style.display = 'flex';
+            const countdownEl = document.createElement('div');
+            countdownEl.id = 'countdown';
+            countdownEl.textContent = `💣 التدمير خلال: ${seconds} ثواني!`;
+            explosion.appendChild(countdownEl);
+
+            const timer = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = `💣 التدمير خلال: ${seconds} ثواني!`;
+                navigator.vibrate?.(500);
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('boomSound').play();
+                    countdownEl.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // منع الخروج إلا إذا ضغط "نعم"
+        window.onbeforeunload = function () {
+            if (!canExit) {
+                return "🛑 لا يمكنك مغادرة الصفحة قبل الإجابة!";
+            }
+        };
+    </script>
+</body>
+</html>
